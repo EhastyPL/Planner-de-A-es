@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atividades</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/pt-br.js"></script>
+    <script>
+      dayjs.locale('pt-br');
+
+      // Função para formatar data
+      const formatador = (data) => {
+        return {
+          dia: {
+            numerico: dayjs(data).format('DD'),
+            semana: {
+              curto: dayjs(data).format('ddd'),
+              longo: dayjs(data).format('dddd'),
+            },
+          },
+          mes: dayjs(data).format('MMMM'),
+          hora: dayjs(data).format('HH:mm'),
+        }
+      }
+
+      // Objeto inicial de atividade
+      const atividade = {
+        nome: "Almoço",
+        data: new Date("2024-07-08 10:00"),
+        finalizada: false
+      }
+
+      // Lista de atividades
+      let atividades = [
+        atividade,
+        {
+          nome: 'Academia em grupo',
+          data: new Date("2024-07-09 12:00"),
+          finalizada: false
+        },
+        {
+          nome: 'gaming session',
+          data: new Date("2024-07-10 13:00"),
+          finalizada: false
+        },
+      ]
+
+      // Função para criar item de atividade
+      const createItemAtividade = (atividade) => {
+        let input = `<input 
+        onchange="concluirAtividade(event)"
+        value="${atividade.data.getTime()}"  // Usar timestamp como valor
+        type="checkbox"`
+
+        if (atividade.finalizada) {
+          input += ' checked'
+        }
+
+        input += '>'
+
+        const formatar = formatador(atividade.data);
+
+        return `  
+        <div class="card bg"><br>
+          ${input}
+          <span>${atividade.nome}</span>
+          <time class="short">
+            ${formatar.dia.semana.curto}.
+            ${formatar.dia.numerico} <br>
+            ${formatar.hora}
+          </time>
+          <time class="full"> 
+            ${formatar.dia.semana.longo} -
+            ${formatar.dia.numerico} de
+            ${formatar.mes}, ${formatar.hora}
+          </time>
+        </div>
+      `;
+      }
+
+      // Função para atualizar lista de atividades na página
+      const updateListaAtividades = () => {
+        const section = document.querySelector('section');
+
+        // Verificar se a lista está vazia
+        if (atividades.length === 0) {
+          section.innerHTML = `<p>Nenhuma Atividade Cadastrada.</p>`;
+          return;
+        }
+
+        section.innerHTML = ''; // Limpa o conteúdo existente
+        for (let atividade of atividades) {
+          section.innerHTML += createItemAtividade(atividade);
+        }
+      }
+
+      // Inicializa a lista de atividades na página
+      updateListaAtividades();
+
+      // Função para salvar nova atividade
+      const salvarminhaatividade = (event) => {
+        event.preventDefault();
+        const dadosDoFormulario = new FormData(event.target);
+        const nome = dadosDoFormulario.get('atividades');
+        const dia = dadosDoFormulario.get('dia');
+        const hora = dadosDoFormulario.get('hora');
+        const data = new Date(`${dia}T${hora}`);
+
+        const novaAtividade = {
+          nome,
+          data,
+          finalizada: false
+        };
+
+        // Verifica se já existe uma atividade no mesmo dia e hora
+        const atividadeExiste = atividades.find((atividade) => {
+          return atividade.data.getTime() === data.getTime(); // Comparar timestamps
+        });
+
+        if (atividadeExiste) {
+          return alert('Dia/Hora não disponível');
+        }
+
+        atividades = [novaAtividade, ...atividades];
+        updateListaAtividades();
+      }
+
+      // Função para concluir atividade
+      const concluirAtividade = (event) => {
+        const input = event.target;
+        const dataDesteInput = parseInt(input.value);
+
+        const atividadeEncontrada = atividades.find((atividade) => {
+          return atividade.data.getTime() === dataDesteInput;
+        });
+
+        if (!atividadeEncontrada) {
+          return;
+        }
+
+        atividadeEncontrada.finalizada = !atividadeEncontrada.finalizada;
+        updateListaAtividades();
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+
+      #app {
+        padding: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .fields-wrapper,
+      .field-wrapper {
+        margin-bottom: 20px;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .field-wrapper svg {
+        margin-right: 10px;
+      }
+
+      .card.bg {
+        background: #18181B;
+        box-shadow:
+          0px 8px 8px rgba(0, 0, 0, 0.1),
+          0px 4px 4px rgba(0, 0, 0, 0.1),
+          0px 2px 2px rgba(0, 0, 0, 0.1),
+          0px 0px 0px 1px rgba(0, 0, 0, 0.1),
+          inset 0px 0px 0px 1px rgba(255, 255, 255, 0.03),
+          inset 0px 1px 0px rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 20px;
+      }
+
+      time {
+        font-size: 14px;
+        color: #a8a8a8;
+      }
+
+      time.full {
+        display: none;
+      }
+    </style>
+    <script type="text/javascript" src="./index.js" defer=""></script>
+    <link rel="stylesheet" href="./index.css">
+  </head>
+
+  <body>
+    <div id="app">
+      <main>
+        <form onsubmit="salvarminhaatividade()">
+          <div id="place" class="card-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.6666 8.33334C16.6666 13.3333 9.99992 18.3333 9.99992 18.3333C9.99992 18.3333 3.33325 13.3333 3.33325 8.33334C3.33325 6.56523 4.03563 4.86954 5.28587 3.61929C6.53612 2.36905 8.23181 1.66667 9.99992 1.66667C11.768 1.66667 13.4637 2.36905 14.714 3.61929C15.9642 4.86954 16.6666 6.56523 16.6666 8.33334Z" stroke="#A1A1AA" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M9.99992 10.8333C11.3806 10.8333 12.4999 9.71405 12.4999 8.33334C12.4999 6.95263 11.3806 5.83334 9.99992 5.83334C8.61921 5.83334 7.49992 6.95263 7.49992 8.33334C7.49992 9.71405 8.61921 10.8333 9.99992 10.8333Z" stroke="#A1A1AA" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            Florianópolis, SC
+          </div>
+          <div class="fields-wrapper">
+            <div class="field-wrapper">
+              <input type="text" placeholder="Qual a Atividade?" name="atividades" required="">
+            </div>
+            <div class="field-wrapper">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6.66667 1.66666V4.99999M13.3333 1.66666V4.99999M2.5 8.33332H17.5M4.16667 3.33332H15.8333C16.7538 3.33332 17.5 4.07952 17.5 4.99999V16.6667C17.5 17.5871 16.7538 18.3333 15.8333 18.3333H4.16667C3.24619 18.3333 2.5 17.5871 2.5 16.6667V4.99999C2.5 4.07952 3.24619 3.33332 4.16667 3.33332Z" stroke="#A1A1AA" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <select name="dia">
+                <option value="2024-03-01">01 de fevereiro</option>
+              </select>
+            </div>
+            <div class="field-wrapper">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.0001 4.99999V9.99999L13.3334 11.6667M18.3334 9.99999C18.3334 14.6024 14.6025 18.3333 10.0001 18.3333C5.39771 18.3333 1.66675 14.6024 1.66675 9.99999C1.66675 5.39762 5.39771 1.66666 10.0001 1.66666C14.6025 1.66666 18.3334 5.39762 18.3334 9.99999Z" stroke="#A1A1AA" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+              <select name="hora">
+                <option value="10:30">10:30</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit">Salvar atividade</button>
+        </form>
+        <h1>Atividades</h1>
+        <section>
+
+        </section>
+      </main>
+    </div>
+
+
+  </body>
+
+</html>
