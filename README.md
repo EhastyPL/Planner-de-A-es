@@ -1,7 +1,4 @@
 Esse é a primeira versão do planner de atividades: v1.0
-
-Esse README.md como utilizar os arquvivos fontes para acessar o planner.
-
 Como usar:
 
 Abra seu navegador (recomendo Chrome);
